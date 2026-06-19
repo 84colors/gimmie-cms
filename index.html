@@ -995,6 +995,7 @@
             function showMessage(element, isVisible) {
                 if (!element) return;
                 element.style.display = isVisible ? "block" : "none";
+                element.classList.toggle("is-visible", isVisible);
             }
 
             showMessage(successMessage, false);
@@ -1002,6 +1003,7 @@
 
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
+                form.classList.remove("is-submitted");
                 showMessage(successMessage, false);
                 showMessage(errorMessage, false);
 
@@ -1026,6 +1028,7 @@
                         form.reset();
                         if (startedAt) startedAt.value = String(Date.now());
                         if (window.turnstile) window.turnstile.reset();
+                        form.classList.add("is-submitted");
                         showMessage(successMessage, true);
                     })
                     .catch(function () {

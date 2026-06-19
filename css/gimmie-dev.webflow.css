@@ -1327,6 +1327,16 @@ strong {
   align-items: stretch;
   width: 100%;
   display: flex;
+  transition: opacity 300ms ease;
+}
+
+.form-wrap.is-submitted {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.w-form {
+  position: relative;
 }
 
 .form-btn-wrap {
@@ -1334,10 +1344,21 @@ strong {
 }
 
 .success-message {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   max-width: var(--_primitives---container--container-small);
   border-radius: var(--_brand---radius--medium);
   background-color: var(--_brand---colors--accent);
   font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.success-message.is-visible {
+  opacity: 1;
 }
 
 .error-message {
