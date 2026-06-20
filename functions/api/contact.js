@@ -1,4 +1,4 @@
-const CONTACT_TO = "contact@84colors.com";
+const CONTACT_TO = ["contact@84colors.com", "info@iglooanimations.com"];
 const DEFAULT_FROM = "Gimme The Short Version <info@gimmetheshortversion.com>";
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const RESEND_EMAILS_URL = "https://api.resend.com/emails";
@@ -77,7 +77,7 @@ export async function onRequestPost(context) {
       },
       body: JSON.stringify({
         from: env.RESEND_FROM || DEFAULT_FROM,
-        to: [CONTACT_TO],
+        to: CONTACT_TO,
         reply_to: email,
         subject,
         text,
