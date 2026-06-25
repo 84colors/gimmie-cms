@@ -3,6 +3,7 @@ import {structureTool} from 'sanity/structure'
 import {presentationTool} from 'sanity/presentation'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
+import {resolve} from './presentation/resolve'
 
 const PREVIEW_ORIGIN = process.env.SANITY_STUDIO_PREVIEW_ORIGIN || 'http://localhost:4321'
 
@@ -33,6 +34,7 @@ export default defineConfig({
           ]),
     }),
     presentationTool({
+      resolve,
       previewUrl: {
         origin: PREVIEW_ORIGIN,
       },

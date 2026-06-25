@@ -20,8 +20,7 @@ export default defineConfig({
       dataset: PUBLIC_SANITY_DATASET,
       useCdn: false,
       stega: {
-        enabled: true,
-        studioUrl: process.env.PUBLIC_SANITY_STUDIO_URL || 'http://localhost:3333',
+        enabled: false,
       },
     }),
   ],

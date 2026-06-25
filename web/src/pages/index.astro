@@ -4,6 +4,7 @@ import { defineQuery } from 'groq';
 import { PortableText } from 'astro-portabletext';
 import { urlFor } from '../utils/image';
 import DudeCharacter from '../components/DudeCharacter.astro';
+import { createDataAttribute } from '@sanity/visual-editing';
 
 const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && _id == "homepage"][0]`);
 const VIDEOS_QUERY = defineQuery(`
@@ -17,6 +18,9 @@ const [hp, videos] = await Promise.all([
   sanityClient.fetch(HOMEPAGE_QUERY),
   sanityClient.fetch(VIDEOS_QUERY),
 ]);
+
+const hpAttr = (path: string) =>
+  createDataAttribute({ id: 'homepage', type: 'homepage', path }).toString();
 ---
 
 <!DOCTYPE html>
@@ -144,10 +148,10 @@ const [hp, videos] = await Promise.all([
       <div class="header-main_grid">
         <div>
           <div class="header-text">
-            <h1 class="header-h1">{hp?.heroHeading ?? 'The Short Version of Anything Complex'}</h1>
-            <div class="h-list-wrap">
-              {(hp?.heroBullets ?? ['Explain information quickly', 'Keep audiences engaged', 'Built by communication specialists']).map((bullet: string) => (
-                <div class="h-list-item">
+            <h1 class="header-h1" data-sanity={hpAttr('heroHeading')}>{hp?.heroHeading ?? 'The Short Version of Anything Complex'}</h1>
+            <div class="h-list-wrap" data-sanity={hpAttr('heroBullets')}>
+              {(hp?.heroBullets ?? ['Explain information quickly', 'Keep audiences engaged', 'Built by communication specialists']).map((bullet: string, i: number) => (
+                <div class="h-list-item" data-sanity={hpAttr(`heroBullets[${i}]`)}>
                   <img src="/images/play.svg" loading="lazy" alt="" class="h-list-bullet">
                   <div class="h-list-text">{bullet}</div>
                 </div>
@@ -162,7 +166,7 @@ const [hp, videos] = await Promise.all([
         <div class="header_reel-grid">
           <div class="reel-board">
             <img src="/images/board.svg" loading="lazy" alt="" class="image-2">
-            <img src="/images/play.svg" loading="lazy" data-modal-target="vimeo" data-video-url={hp?.heroReelUrl ?? 'https://vimeo.com/220612760?fl=pl&fe=sh'} alt="" class="reel-play-btn">
+            <img src="/images/play.svg" loading="lazy" data-modal-target="vimeo" data-video-url={hp?.heroReelUrl ?? 'https://vimeo.com/220612760?fl=pl&fe=sh'} alt="" class="reel-play-btn" data-sanity={hpAttr('heroReelUrl')}>
           </div>
           <DudeCharacter />
         </div>
@@ -176,10 +180,10 @@ const [hp, videos] = await Promise.all([
         <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
         <div class="intro-grid">
           <div class="w-layout-vflex intro-grid_h-wrap">
-            <h2 class="heading-2">{hp?.aboutHeading ?? 'Struggling to explain your message?'}</h2>
+            <h2 class="heading-2" data-sanity={hpAttr('aboutHeading')}>{hp?.aboutHeading ?? 'Struggling to explain your message?'}</h2>
           </div>
           <div class="intro-text_wrap">
-            <div class="rich-text-lg w-richtext">
+            <div class="rich-text-lg w-richtext" data-sanity={hpAttr('aboutBody')}>
               {hp?.aboutBody
                 ? <PortableText value={hp.aboutBody} />
                 : <>
@@ -203,14 +207,15 @@ const [hp, videos] = await Promise.all([
               data-modal-target="vimeo"
               href="#"
               class="thumb-wrap w-inline-block"
+              data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'vimeoUrl' }).toString()}
             >
-              <div class="thumb-img-wrap">
+              <div class="thumb-img-wrap" data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'thumbnail' }).toString()}>
                 {video.thumbnail
                   ? <img loading="lazy" src={urlFor(video.thumbnail).width(800).height(450).url()} alt={video.title} class="thumb-img">
                   : <div class="thumb-img" style="background:#eee;aspect-ratio:16/9"></div>
                 }
               </div>
-              <div class="thumb-text">{video.title}</div>
+              <div class="thumb-text" data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'title' }).toString()}>{video.title}</div>
             </a>
           ))}
         </div>
@@ -228,11 +233,11 @@ const [hp, videos] = await Promise.all([
         <div class="process-grid">
           <div class="container-text">
             <div class="container-md">
-              <h2 data-header="" class="heading-2">
+              <h2 data-header="" class="heading-2" data-sanity={hpAttr('processHeading')}>
                 <strong>{hp?.processHeading ?? 'Our process makes for a smooth experience'}</strong>
               </h2>
               <div data-wf--spacer--variant="base" class="spacer w-variant-9adfacd5-58fb-2a13-4ebd-c0bcf7c7541c"></div>
-              <div class="rich-text-lg w-richtext">
+              <div class="rich-text-lg w-richtext" data-sanity={hpAttr('processIntro')}>
                 {hp?.processIntro
                   ? <PortableText value={hp.processIntro} />
                   : <>
@@ -254,16 +259,16 @@ const [hp, videos] = await Promise.all([
                     { number: '2.', title: 'Design', description: 'We create custom visuals, characters, colour palettes, and layouts designed specifically for your brand and audience.', variant: 'dark' },
                     { number: '3.', title: 'Motion', description: 'We bring your ideas to life through animation that makes information easy to understand and enjoyable to watch.', variant: 'white' },
                     { number: '4.', title: 'Voiceover & Music', description: 'We add professional voiceover and carefully selected music to strengthen the message and complete the experience.', variant: 'grey' },
-                  ]).map((step: any) => (
+                  ]).map((step: any, i: number) => (
                     <div data-dropping-stack-item="" class="dropping-stack__item">
                       <div class={`dropping-stack-card${step.variant === 'dark' ? ' is--dark' : step.variant === 'white' ? ' is--white' : step.variant === 'grey' ? ' is--grey' : ''}`}>
                         <div class="dropping-stack-card__before"></div>
                         <div class="dropping-stack-card__content">
                           <div class="stack_text-wrap">
-                            <div class="stack_number">{step.number}</div>
+                            <div class="stack_number" data-sanity={hpAttr(`processSteps[${i}].number`)}>{step.number}</div>
                             <div class="stack_text-bottom">
-                              <div class="stack_title">{step.title}</div>
-                              <div class="stack_text">{step.description}</div>
+                              <div class="stack_title" data-sanity={hpAttr(`processSteps[${i}].title`)}>{step.title}</div>
+                              <div class="stack_text" data-sanity={hpAttr(`processSteps[${i}].description`)}>{step.description}</div>
                             </div>
                           </div>
                         </div>
@@ -298,7 +303,7 @@ const [hp, videos] = await Promise.all([
         <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
         <div class="faq-grid">
           <div class="title-stack-center">
-            <h2 data-header="" class="heading-2">{hp?.faqHeading ?? 'Frequently asked questions'}</h2>
+            <h2 data-header="" class="heading-2" data-sanity={hpAttr('faqHeading')}>{hp?.faqHeading ?? 'Frequently asked questions'}</h2>
           </div>
           <div class="faq-wrap">
             {(hp?.faqItems ?? [
@@ -307,15 +312,15 @@ const [hp, videos] = await Promise.all([
               { question: 'Who owns the copyright?', answer: 'Once the project is completed and fully paid for, the final video is yours to use across your website, social media, presentations and marketing channels.' },
               { question: 'Do I need to provide my own script?', answer: 'Only if you\'d like to. We can handle the scriptwriting for you and turn your ideas or existing material into a clear, engaging story.' },
               { question: 'How do we handle revisions?', answer: 'Your feedback is included throughout the process. Two rounds of revisions are included to help make sure the final video feels just right.' },
-            ]).map((item: any) => (
+            ]).map((item: any, i: number) => (
               <div class="faq-item">
                 <div class="faq-title">
-                  <div class="faq-title-p"><strong>{item.question}</strong></div>
+                  <div class="faq-title-p" data-sanity={hpAttr(`faqItems[${i}].question`)}><strong>{item.question}</strong></div>
                   <img width="32" height="32" alt="" src="/images/Frame_1.svg" loading="lazy" class="faq-icon">
                 </div>
                 <div class="faq-desc">
                   <div class="faq-desc-item">
-                    <div class="text-block">{item.answer}</div>
+                    <div class="text-block" data-sanity={hpAttr(`faqItems[${i}].answer`)}>{item.answer}</div>
                   </div>
                 </div>
               </div>
@@ -330,7 +335,7 @@ const [hp, videos] = await Promise.all([
         <div class="awards-grid">
           <img src="/images/dude-crown.svg" loading="lazy" alt="" class="awards-dude">
           <div>
-            <h3 class="awards-heading">
+            <h3 class="awards-heading" data-sanity={hpAttr('awardsHeading')}>
               {hp?.awardsHeading ?? 'Igloo Animations is a multi-award winning animation studio based in Dublin & Wicklow, Ireland.'}
             </h3>
           </div>
@@ -356,7 +361,7 @@ const [hp, videos] = await Promise.all([
         <div class="footer-top-grid">
           <div class="footer_left">
             <div class="footer-top_text-stack">
-              <div data-header="" class="heading-3">
+              <div data-header="" class="heading-3" data-sanity={hpAttr('footerTagline')}>
                 {hp?.footerTagline ?? 'Stop explaining. Start showing. Sit back, relax… Get the short version.'}
               </div>
               <a data-modal-target="form" href="#" class="btn-primary w-inline-block">
@@ -370,12 +375,12 @@ const [hp, videos] = await Promise.all([
               <div class="heading-5">Get in touch</div>
               <div class="footer-contact-info">
                 <div class="footer-links_grid">
-                  <div class="footer-link-text">{hp?.footerPhone ?? '+353 (0)86 8468842'}</div>
+                  <div class="footer-link-text" data-sanity={hpAttr('footerPhone')}>{hp?.footerPhone ?? '+353 (0)86 8468842'}</div>
                   <a href={`mailto:${hp?.footerEmail ?? 'info@iglooanimations.com'}?subject=Email%20from%20website`} class="footer-link w-inline-block">
-                    <div class="footer-link-text">{hp?.footerEmail ?? 'info@iglooanimations.com'}</div>
+                    <div class="footer-link-text" data-sanity={hpAttr('footerEmail')}>{hp?.footerEmail ?? 'info@iglooanimations.com'}</div>
                   </a>
                   <div class="footer-link">
-                    <div class="footer-link-text">{hp?.footerLocation ?? 'Dublin & Wicklow'}</div>
+                    <div class="footer-link-text" data-sanity={hpAttr('footerLocation')}>{hp?.footerLocation ?? 'Dublin & Wicklow'}</div>
                   </div>
                 </div>
                 <div class="footer-links_grid">
@@ -530,5 +535,12 @@ const [hp, videos] = await Promise.all([
     })();
   </script>
   <script is:inline defer src="https://84colors.github.io/84colorsGit/gimmie/gimmie-scripts.js"></script>
+  <script>
+    import { enableVisualEditing } from '@sanity/visual-editing';
+    // Only activate overlays when loaded inside the Presentation Tool iframe
+    if (window !== window.top) {
+      enableVisualEditing();
+    }
+  </script>
 </body>
 </html>
