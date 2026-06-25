@@ -1,0 +1,534 @@
+---
+import { sanityClient } from 'sanity:client';
+import { defineQuery } from 'groq';
+import { PortableText } from 'astro-portabletext';
+import { urlFor } from '../utils/image';
+import DudeCharacter from '../components/DudeCharacter.astro';
+
+const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && _id == "homepage"][0]`);
+const VIDEOS_QUERY = defineQuery(`
+  *[_type == "video"] | order(order asc, _createdAt asc) {
+    _id, title, vimeoUrl, thumbnail,
+    "categories": categories[]->{ title }
+  }
+`);
+
+const [hp, videos] = await Promise.all([
+  sanityClient.fetch(HOMEPAGE_QUERY),
+  sanityClient.fetch(VIDEOS_QUERY),
+]);
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Explainer Video Production Ireland | Healthcare, Tech, Finance &amp; Education</title>
+  <meta content="Dublin-based studio creating award-winning explainer videos for healthcare, fintech, edtech and SaaS. Clear, engaging, and made to convert." name="description">
+  <meta content="Explainer Video Production Ireland | Healthcare, Tech, Finance &amp; Education" property="og:title">
+  <meta content="Dublin-based studio creating award-winning explainer videos for healthcare, fintech, edtech and SaaS. Clear, engaging, and made to convert." property="og:description">
+  <meta property="og:type" content="website">
+  <meta content="summary_large_image" name="twitter:card">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link href="/css/normalize.css" rel="stylesheet" type="text/css">
+  <link href="/css/webflow.css" rel="stylesheet" type="text/css">
+  <link href="/css/gimmie-dev.webflow.css" rel="stylesheet" type="text/css">
+  <link href="/images/favicon.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: light)">
+  <link href="/images/favicon-dark.png" rel="icon" type="image/png" sizes="32x32" media="(prefers-color-scheme: dark)">
+  <link href="/images/favicon-48.png" rel="icon" type="image/png" sizes="48x48">
+  <link href="/images/webclip-180.png" rel="apple-touch-icon" sizes="180x180">
+  <link href="/images/webclip-192.png" rel="icon" type="image/png" sizes="192x192">
+  <link href="/images/webclip.png" rel="icon" type="image/png" sizes="512x512">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-7MC4Q6DXNL"></script>
+  <script is:inline>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-7MC4Q6DXNL');
+  </script>
+  <style is:global>
+    html.w-mod-js:not(.w-mod-ix3) :is(.faq-desc, .header-h1, .h-list-wrap, .header-text .btn-primary, .navbar-wrap, [data-header]) {
+      visibility: hidden !important;
+    }
+    [data-modal-group-status] { transition: all 0.2s linear; }
+    [data-modal-group-status="active"] { opacity: 1; visibility: visible; }
+    [data-modal-name][data-modal-status="active"] { display: flex; }
+    .dropping-stack__item:nth-child(1) { position: relative; }
+    .dropping-stack__control .dropping-stack__control-circle {
+      transition: transform 0.3s ease;
+      transform: translateY(0em) rotate(0.001deg);
+    }
+    .dropping-stack__control:hover .dropping-stack__control-circle {
+      transform: translateY(-0.25em) rotate(0.001deg);
+    }
+    :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(1) { z-index: 3; }
+    :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(2) { transform: translate(2.5em, 2.5em); z-index: 2; }
+    :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(3) { transform: translate(5em, 5em); z-index: 1; }
+    :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(4) { transform: translate(7.5em, 7.5em); }
+    @media screen and (max-width: 767px) {
+      :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(2) { transform: translate(1.5em, 1.5em); }
+      :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(3) { transform: translate(3em, 3em); }
+      :is(.wf-design-mode, .w-editor) .dropping-stack__item:nth-child(4) { transform: translate(4.5em, 4.5em); }
+    }
+    a { color: inherit; }
+    p:last-child { margin-bottom: 0; }
+    section {
+      padding-left: var(--_spacing---p-global);
+      padding-right: var(--_spacing---p-global);
+    }
+    section > div {
+      width: 100%;
+      max-width: var(--_primitives---container--container-main);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .w-full { max-width: none; }
+    h1, h2 {
+      text-decoration: underline;
+      text-decoration-color: var(--_brand---colors--accent);
+      text-decoration-thickness: 0.1em;
+      text-underline-offset: 6px;
+    }
+    :root {
+      --font-from: 18; --font-to: 20;
+      --vw-from: calc(1920 / 100); --vw-to: calc(2400 / 100);
+      --coefficient: calc((var(--font-to) - var(--font-from)) / (var(--vw-to) - var(--vw-from)));
+      --base: calc((var(--font-from) - var(--vw-from) * var(--coefficient)) / 16);
+    }
+    html { font-size: calc(var(--base) * 1rem + var(--coefficient) * 1vw); }
+    @media screen and (max-width: 1920px) {
+      :root { --font-from: 16; --font-to: 18; --vw-from: calc(1440 / 100); --vw-to: calc(1920 / 100); }
+    }
+    @media screen and (max-width: 1440px) {
+      :root { --font-from: 14; --font-to: 16; --vw-from: calc(479 / 100); --vw-to: calc(1440 / 100); }
+    }
+    @media screen and (max-width: 479px) {
+      :root { --font-from: 12; --font-to: 16; --vw-from: calc(1 / 100); --vw-to: calc(479 / 100); }
+    }
+    .gsap_split_word-mask { padding-bottom: 0.14em; }
+  </style>
+  <script is:inline>!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script>
+</head>
+<body>
+  <div class="page-wrap">
+
+    <!-- ── Navbar ─────────────────────────────────────────────────── -->
+    <div class="navbar">
+      <div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="navbar-container w-nav">
+        <div class="navbar-inner">
+          <div class="navbar-wrap">
+            <a href="#" class="nav-logo w-nav-brand">
+              <img src="/images/logo.svg" loading="eager" alt="Gimme the Short Version" class="image">
+            </a>
+            <ul role="list" class="nav-menu w-list-unstyled">
+              <li><a href="#about" class="nav-link">About</a></li>
+              <li><a href="#work" class="nav-link">Work</a></li>
+              <li><a href="#process" class="nav-link">Process</a></li>
+            </ul>
+            <div class="nav-right">
+              <a data-modal-target="form" href="#" class="btn-primary w-inline-block">
+                <div class="btn-text">Get a quote</div>
+                <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
+              </a>
+              <div class="menu-button w-nav-button">
+                <div class="icon w-icon-nav-menu"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Hero ───────────────────────────────────────────────────── -->
+    <header class="header-main">
+      <div class="header-main_grid">
+        <div>
+          <div class="header-text">
+            <h1 class="header-h1">{hp?.heroHeading ?? 'The Short Version of Anything Complex'}</h1>
+            <div class="h-list-wrap">
+              {(hp?.heroBullets ?? ['Explain information quickly', 'Keep audiences engaged', 'Built by communication specialists']).map((bullet: string) => (
+                <div class="h-list-item">
+                  <img src="/images/play.svg" loading="lazy" alt="" class="h-list-bullet">
+                  <div class="h-list-text">{bullet}</div>
+                </div>
+              ))}
+            </div>
+            <a href="#work" class="btn-primary w-inline-block">
+              <div class="btn-text">View our work</div>
+              <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
+            </a>
+          </div>
+        </div>
+        <div class="header_reel-grid">
+          <div class="reel-board">
+            <img src="/images/board.svg" loading="lazy" alt="" class="image-2">
+            <img src="/images/play.svg" loading="lazy" data-modal-target="vimeo" data-video-url={hp?.heroReelUrl ?? 'https://vimeo.com/220612760?fl=pl&fe=sh'} alt="" class="reel-play-btn">
+          </div>
+          <DudeCharacter />
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ── About ────────────────────────────────────────────────── -->
+      <section id="about" class="s_intro">
+        <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+        <div class="intro-grid">
+          <div class="w-layout-vflex intro-grid_h-wrap">
+            <h2 class="heading-2">{hp?.aboutHeading ?? 'Struggling to explain your message?'}</h2>
+          </div>
+          <div class="intro-text_wrap">
+            <div class="rich-text-lg w-richtext">
+              {hp?.aboutBody
+                ? <PortableText value={hp.aboutBody} />
+                : <>
+                    <p><strong>At GimmeTheShortVersion.com, we turn complex ideas into simple, engaging visual stories</strong> — for healthcare, tech, finance, education, and many more.</p>
+                    <p>From custom scripts to high-quality design, animation and voiceover, everything is tailored to your brand.</p>
+                    <p>Stop explaining. Start showing. Sit back, relax… get the short version.</p>
+                  </>
+              }
+            </div>
+          </div>
+        </div>
+        <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+      </section>
+
+      <!-- ── Work / Video Grid ─────────────────────────────────────── -->
+      <section id="work" class="s_thumbs">
+        <div class="thumbs-grid">
+          {videos.map((video: any) => (
+            <a
+              data-video-url={video.vimeoUrl}
+              data-modal-target="vimeo"
+              href="#"
+              class="thumb-wrap w-inline-block"
+            >
+              <div class="thumb-img-wrap">
+                {video.thumbnail
+                  ? <img loading="lazy" src={urlFor(video.thumbnail).width(800).height(450).url()} alt={video.title} class="thumb-img">
+                  : <div class="thumb-img" style="background:#eee;aspect-ratio:16/9"></div>
+                }
+              </div>
+              <div class="thumb-text">{video.title}</div>
+            </a>
+          ))}
+        </div>
+        <div class="thumbs-btn-wrap">
+          <a id="btn-load" href="#" class="btn-primary w-inline-block">
+            <div class="btn-text">Load more</div>
+          </a>
+        </div>
+        <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+      </section>
+
+      <!-- ── Process ──────────────────────────────────────────────── -->
+      <section id="process" class="s_process">
+        <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
+        <div class="process-grid">
+          <div class="container-text">
+            <div class="container-md">
+              <h2 data-header="" class="heading-2">
+                <strong>{hp?.processHeading ?? 'Our process makes for a smooth experience'}</strong>
+              </h2>
+              <div data-wf--spacer--variant="base" class="spacer w-variant-9adfacd5-58fb-2a13-4ebd-c0bcf7c7541c"></div>
+              <div class="rich-text-lg w-richtext">
+                {hp?.processIntro
+                  ? <PortableText value={hp.processIntro} />
+                  : <>
+                      <p>Our seamless production process is built around four simple steps, designed to keep everything clear, collaborative, and stress-free from start to finish.</p>
+                      <p>Your feedback is included at every keystage, so there are no surprises — just a smooth process and a final video that delivers the results you need.</p>
+                    </>
+                }
+              </div>
+              <div data-wf--spacer--variant="xl" class="spacer"></div>
+            </div>
+          </div>
+          <div class="process_cards-wrap">
+            <img src="/images/dude.svg" loading="lazy" alt="" class="reel-dude_story">
+            <div data-dropping-stack-init="" class="dropping-stack">
+              <div data-dropping-stack-collection="" class="dropping-stack__collection">
+                <div class="dropping-stack__list">
+                  {(hp?.processSteps ?? [
+                    { number: '1.', title: 'Script', description: 'We transform your message into a clear, concise script that simplifies complex ideas and turns them into an engaging story.', variant: 'default' },
+                    { number: '2.', title: 'Design', description: 'We create custom visuals, characters, colour palettes, and layouts designed specifically for your brand and audience.', variant: 'dark' },
+                    { number: '3.', title: 'Motion', description: 'We bring your ideas to life through animation that makes information easy to understand and enjoyable to watch.', variant: 'white' },
+                    { number: '4.', title: 'Voiceover & Music', description: 'We add professional voiceover and carefully selected music to strengthen the message and complete the experience.', variant: 'grey' },
+                  ]).map((step: any) => (
+                    <div data-dropping-stack-item="" class="dropping-stack__item">
+                      <div class={`dropping-stack-card${step.variant === 'dark' ? ' is--dark' : step.variant === 'white' ? ' is--white' : step.variant === 'grey' ? ' is--grey' : ''}`}>
+                        <div class="dropping-stack-card__before"></div>
+                        <div class="dropping-stack-card__content">
+                          <div class="stack_text-wrap">
+                            <div class="stack_number">{step.number}</div>
+                            <div class="stack_text-bottom">
+                              <div class="stack_title">{step.title}</div>
+                              <div class="stack_text">{step.description}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div class="dropping-stack__controls">
+                <div data-dropping-stack-prev="" class="dropping-stack__control is--prev">
+                  <div class="dropping-stack__control-circle is--prev">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 18 18" fill="none" class="dropping-stack__control-svg">
+                      <path d="M6.74976 14.25L11.9998 9L6.74976 3.75" stroke="currentColor" stroke-width="2.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+                <div data-dropping-stack-next="" class="dropping-stack__control">
+                  <div class="dropping-stack__control-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 18 18" fill="none" class="dropping-stack__control-svg">
+                      <path d="M6.74976 14.25L11.9998 9L6.74976 3.75" stroke="currentColor" stroke-width="2.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── FAQ ──────────────────────────────────────────────────── -->
+      <section class="s_faq">
+        <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
+        <div class="faq-grid">
+          <div class="title-stack-center">
+            <h2 data-header="" class="heading-2">{hp?.faqHeading ?? 'Frequently asked questions'}</h2>
+          </div>
+          <div class="faq-wrap">
+            {(hp?.faqItems ?? [
+              { question: 'How much does a video cost?', answer: 'Every project is different, so pricing depends on the style, length and complexity of the video. After a quick chat about your goals, we\'ll provide a clear quote tailored to your project and budget.' },
+              { question: 'How long does it take?', answer: 'Most projects take around 4 weeks once the deposit has been paid and the script approved, depending on the scope of the project and feedback turnaround times.' },
+              { question: 'Who owns the copyright?', answer: 'Once the project is completed and fully paid for, the final video is yours to use across your website, social media, presentations and marketing channels.' },
+              { question: 'Do I need to provide my own script?', answer: 'Only if you\'d like to. We can handle the scriptwriting for you and turn your ideas or existing material into a clear, engaging story.' },
+              { question: 'How do we handle revisions?', answer: 'Your feedback is included throughout the process. Two rounds of revisions are included to help make sure the final video feels just right.' },
+            ]).map((item: any) => (
+              <div class="faq-item">
+                <div class="faq-title">
+                  <div class="faq-title-p"><strong>{item.question}</strong></div>
+                  <img width="32" height="32" alt="" src="/images/Frame_1.svg" loading="lazy" class="faq-icon">
+                </div>
+                <div class="faq-desc">
+                  <div class="faq-desc-item">
+                    <div class="text-block">{item.answer}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Awards ───────────────────────────────────────────────── -->
+      <section class="s_awards">
+        <div data-wf--spacer--variant="xl" class="spacer"></div>
+        <div class="awards-grid">
+          <img src="/images/dude-crown.svg" loading="lazy" alt="" class="awards-dude">
+          <div>
+            <h3 class="awards-heading">
+              {hp?.awardsHeading ?? 'Igloo Animations is a multi-award winning animation studio based in Dublin & Wicklow, Ireland.'}
+            </h3>
+          </div>
+          <div class="logo-list-grid">
+            <div class="logo-wrap"><img src="/images/image-322.avif" loading="lazy" alt="Irish animation awards" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-326.avif" loading="lazy" alt="Dublin animation film festival" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-328.avif" loading="lazy" alt="Los Angeles film festival" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-321.avif" loading="lazy" alt="Tampere film festival award" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-327.avif" loading="lazy" alt="Darklight film festival award" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-323.avif" loading="lazy" alt="Irish animation awards" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-320.avif" loading="lazy" alt="Irish animation awards" class="logo-img"></div>
+            <div class="logo-wrap"><img src="/images/image-324.avif" loading="lazy" alt="Festival de Cannes" class="logo-img"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ── Footer ───────────────────────────────────────────────────── -->
+    <footer class="footer-main">
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+      <div class="footer-grid">
+        <div class="footer-top-grid">
+          <div class="footer_left">
+            <div class="footer-top_text-stack">
+              <div data-header="" class="heading-3">
+                {hp?.footerTagline ?? 'Stop explaining. Start showing. Sit back, relax… Get the short version.'}
+              </div>
+              <a data-modal-target="form" href="#" class="btn-primary w-inline-block">
+                <div class="btn-text">Get a quote</div>
+                <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
+              </a>
+            </div>
+          </div>
+          <div class="footer_right">
+            <div class="footer-contact">
+              <div class="heading-5">Get in touch</div>
+              <div class="footer-contact-info">
+                <div class="footer-links_grid">
+                  <div class="footer-link-text">{hp?.footerPhone ?? '+353 (0)86 8468842'}</div>
+                  <a href={`mailto:${hp?.footerEmail ?? 'info@iglooanimations.com'}?subject=Email%20from%20website`} class="footer-link w-inline-block">
+                    <div class="footer-link-text">{hp?.footerEmail ?? 'info@iglooanimations.com'}</div>
+                  </a>
+                  <div class="footer-link">
+                    <div class="footer-link-text">{hp?.footerLocation ?? 'Dublin & Wicklow'}</div>
+                  </div>
+                </div>
+                <div class="footer-links_grid">
+                  <a href="https://www.instagram.com/iglooanimations/" target="_blank" class="footer-link w-inline-block">
+                    <div class="footer-link-text">Instagram</div><img src="/images/Frame.svg" loading="lazy" width="16" height="16" alt="" class="footer-link-icon">
+                  </a>
+                  <a href="http://www.youtube.com/gimmetheshortversion" target="_blank" class="footer-link w-inline-block">
+                    <div class="footer-link-text">Youtube</div><img src="/images/Frame.svg" loading="lazy" width="16" height="16" alt="" class="faq-icon">
+                  </a>
+                  <a href="http://uk.linkedin.com/in/trevorcourtney" target="_blank" class="footer-link w-inline-block">
+                    <div class="footer-link-text">LinkedIn</div><img src="/images/Frame.svg" loading="lazy" width="16" height="16" alt="" class="faq-icon">
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom-grid">
+          <div class="footer-small-links_grid">
+            <div class="text-small">© Copyright GimmieTheShortVersion</div>
+            <div class="text-small">Terms</div>
+            <div class="text-small">Privacy</div>
+          </div>
+          <div>
+            <a href="https://www.84colors.com" target="_blank" class="link-sm w-inline-block">
+              <div class="text-small">Website by 84colors</div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div data-wf--spacer--variant="sm" class="spacer w-variant-fce628e4-8018-a217-1152-1a694b33d9e3"></div>
+      <img src="/images/scissors.svg" loading="lazy" alt="" class="footer-scissors">
+    </footer>
+
+    <!-- ── Modals ───────────────────────────────────────────────────── -->
+    <div data-modal-group-status="not-active" class="modal">
+      <div data-hover="" data-modal-close="" class="modal__dark"></div>
+
+      <!-- Vimeo modal -->
+      <div data-modal-status="not-active" data-modal-name="vimeo" class="modal__card">
+        <div class="modal__scroll">
+          <div class="modal__content">
+            <h2 class="modal__h2">Modal A</h2>
+            <div style="padding-top:56.27659574468085%" class="video w-video w-embed">
+              <iframe class="embedly-embed" src="https://cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F193882393%3Fapp_id%3D122963&dntp=1&display_name=Vimeo&url=https%3A%2F%2Fvimeo.com%2F193882393&image=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2112907898-c2eaf620bcceeb3e0a1c0c1b2913e7c04fa83130ac39e14f97f2d756ca853354-d_960%3Fregion%3Dus&type=text%2Fhtml&schema=vimeo" width="940" height="529" scrolling="no" allowfullscreen title="Genomics Medicine Ireland"></iframe>
+            </div>
+          </div>
+        </div>
+        <div data-hover="" data-modal-close="" class="modal__btn-close">
+          <div class="modal__btn-close-bar"></div>
+          <div class="modal__btn-close-bar is--second"></div>
+        </div>
+      </div>
+
+      <!-- Contact form modal -->
+      <div data-modal-status="not-active" data-modal-name="form" class="modal__card">
+        <div class="modal__scroll">
+          <div class="modal__content">
+            <h2 class="modal__h2">Request a quote</h2>
+            <div class="w-form">
+              <form id="email-form" name="email-form" data-name="Email Form" action="/api/contact" method="post" class="form-wrap">
+                <div class="form-row"><label for="name" class="form-label">Name</label><input class="form-input w-input" maxlength="256" name="name" placeholder="" type="text" id="name" required></div>
+                <div class="form-row"><label for="email" class="form-label">Email Address</label><input class="form-input w-input" maxlength="256" name="email" placeholder="" type="email" id="email" required></div>
+                <div class="form-row"><label for="Message" class="form-label">Message</label><textarea required placeholder="Your message" maxlength="5000" id="Message" name="Message" class="form-input is--textarea w-input"></textarea></div>
+                <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;" aria-hidden="true">
+                <input type="hidden" name="startedAt" id="startedAt">
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAADnuaJ0kgj384rLE"></div>
+                <div class="form-btn-wrap"><input type="submit" data-wait="Please wait..." class="btn-primary w-button" value="Send message"></div>
+              </form>
+              <div class="success-message w-form-done">
+                <div>Thank you! Your submission has been received!</div>
+              </div>
+              <div class="error-message w-form-fail">
+                <div>Oops! Something went wrong while submitting the form.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div data-hover="" data-modal-close="" class="modal__btn-close">
+          <div class="modal__btn-close-bar"></div>
+          <div class="modal__btn-close-bar is--second"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.page-wrap -->
+
+  <!-- ── Scripts ──────────────────────────────────────────────────── -->
+  <script is:inline src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=6a01c0089162c59ecc1a496c" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+  <script is:inline src="/js/webflow.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/gsap.min.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/ScrollTrigger.min.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/SplitText.min.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/ScrollToPlugin.min.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/Draggable.min.js"></script>
+  <script is:inline src="https://cdn.prod.website-files.com/gsap/3.15.0/CustomEase.min.js"></script>
+  <script is:inline>gsap.registerPlugin(ScrollTrigger, SplitText, ScrollToPlugin, Draggable, CustomEase);</script>
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script is:inline>
+    (function () {
+      var form = document.getElementById("email-form");
+      if (!form) return;
+      var startedAt = document.getElementById("startedAt");
+      var submitButton = form.querySelector('[type="submit"]');
+      var successMessage = document.querySelector(".success-message");
+      var errorMessage = document.querySelector(".error-message");
+      if (startedAt) startedAt.value = String(Date.now());
+      function showMessage(element, isVisible) {
+        if (!element) return;
+        element.style.display = isVisible ? "block" : "none";
+        element.classList.toggle("is-visible", isVisible);
+      }
+      showMessage(successMessage, false);
+      showMessage(errorMessage, false);
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        form.classList.remove("is-submitted");
+        showMessage(successMessage, false);
+        showMessage(errorMessage, false);
+        var originalValue = submitButton ? submitButton.value : "";
+        if (submitButton) {
+          submitButton.value = submitButton.getAttribute("data-wait") || "Please wait...";
+          submitButton.disabled = true;
+        }
+        fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" }
+        })
+          .then(function (response) {
+            if (!response.ok) throw new Error("Form submission failed");
+            return response.json();
+          })
+          .then(function () {
+            form.reset();
+            if (startedAt) startedAt.value = String(Date.now());
+            if (window.turnstile) window.turnstile.reset();
+            form.classList.add("is-submitted");
+            showMessage(successMessage, true);
+          })
+          .catch(function () {
+            showMessage(errorMessage, true);
+            if (window.turnstile) window.turnstile.reset();
+          })
+          .finally(function () {
+            if (submitButton) {
+              submitButton.value = originalValue;
+              submitButton.disabled = false;
+            }
+          });
+      });
+    })();
+  </script>
+  <script is:inline defer src="https://84colors.github.io/84colorsGit/gimmie/gimmie-scripts.js"></script>
+</body>
+</html>
