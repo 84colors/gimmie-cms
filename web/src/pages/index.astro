@@ -10,7 +10,8 @@ const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && _id == "homepage"][
 const VIDEOS_QUERY = defineQuery(`
   *[_type == "video"] | order(order asc, _createdAt asc) {
     _id, title, vimeoUrl, thumbnail,
-    "categories": categories[]->{ title }
+    "categories": categories[]->{ title },
+    "caseStudySlug": *[_type == "caseStudy" && references(^._id)][0].slug.current
   }
 `);
 
@@ -203,9 +204,13 @@ const hpAttr = (path: string) =>
         <div class="thumbs-grid">
           {videos.map((video: any) => (
             <a
-              data-video-url={video.vimeoUrl}
-              data-modal-target="vimeo"
-              href="#"
+              {...(video.caseStudySlug
+                ? { href: `/case-studies/${video.caseStudySlug}` }
+                : {
+                    'data-video-url': video.vimeoUrl,
+                    'data-modal-target': 'vimeo',
+                    href: '#',
+                  })}
               class="thumb-wrap w-inline-block"
               data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'vimeoUrl' }).toString()}
             >

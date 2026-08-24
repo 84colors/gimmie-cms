@@ -16,5 +16,17 @@ export const resolve: PresentationPluginOptions['resolve'] = {
         ],
       }),
     }),
+    caseStudy: defineLocations({
+      select: { title: 'title', slug: 'slug.current' },
+      resolve: (doc) => ({
+        locations: [
+          {
+            title: doc?.title ?? 'Case Study',
+            href: doc?.slug ? `/case-studies/${doc.slug}` : '/case-studies',
+          },
+          { title: 'All Case Studies', href: '/case-studies' },
+        ],
+      }),
+    }),
   },
 }

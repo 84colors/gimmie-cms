@@ -70,7 +70,7 @@ console.log("hey there");
     // ============================================================
     function initVimeoThumbs() {
         const thumbWraps = document.querySelectorAll(
-            ".thumb-wrap, .reel-play-btn",
+            ".thumb-wrap[data-video-url], .reel-play-btn",
         );
 
         if (!thumbWraps.length) return;

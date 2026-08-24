@@ -31,6 +31,7 @@ export default defineConfig({
             S.divider(),
             S.documentTypeListItem('video').title('Videos'),
             S.documentTypeListItem('category').title('Categories'),
+            S.documentTypeListItem('caseStudy').title('Case Studies'),
           ]),
     }),
     presentationTool({

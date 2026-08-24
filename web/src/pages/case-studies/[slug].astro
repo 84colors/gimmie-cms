@@ -1,0 +1,469 @@
+---
+import { sanityClient } from 'sanity:client';
+import { defineQuery } from 'groq';
+import { PortableText } from 'astro-portabletext';
+import { urlFor } from '../../utils/image';
+import { createDataAttribute } from '@sanity/visual-editing';
+import PortableImage from '../../components/PortableImage.astro';
+import Layout from '../../layouts/Layout.astro';
+
+const CASE_STUDY_QUERY = defineQuery(`
+  *[_type == "caseStudy" && slug.current == $slug][0] {
+    _id, title, client, heroImage, body,
+    gallery[]{
+      _key,
+      asset,
+      hotspot,
+      crop,
+      alt,
+      caption
+    },
+    "videoId": video->_id,
+    "videoTitle": video->title,
+    "videoUrl": video->vimeoUrl,
+    "industries": video->categories[]->title
+  }
+`);
+
+export async function getStaticPaths() {
+  const SLUGS_QUERY = defineQuery(`*[_type == "caseStudy"]{ "slug": slug.current }`);
+  const studies = await sanityClient.fetch(SLUGS_QUERY);
+  return studies.map((study: any) => ({ params: { slug: study.slug } }));
+}
+
+const { slug } = Astro.params;
+const study = await sanityClient.fetch(CASE_STUDY_QUERY, { slug });
+
+if (!study) {
+  return Astro.redirect('/404');
+}
+
+const csAttr = (path: string) =>
+  createDataAttribute({ id: study._id, type: 'caseStudy', path }).toString();
+const videoAttr = (path: string) =>
+  study.videoId
+    ? createDataAttribute({ id: study.videoId, type: 'video', path }).toString()
+    : undefined;
+
+const vimeoId = study.videoUrl?.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+const embedUrl = vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : null;
+const industryLabel = study.industries?.filter(Boolean).join(', ');
+
+const components = {
+  types: { image: PortableImage },
+};
+---
+
+<Layout title={`${study.title} | Case Study`}>
+  <main>
+    <section class="case-hero">
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+      <div class="case-hero__inner">
+        <a href="/case-studies" class="case-back">All case studies</a>
+        <h1 data-sanity={csAttr('title')}>{study.title}</h1>
+        <div class="case-hero__media">
+          {embedUrl ? (
+            <div class="case-video">
+              <iframe
+                src={`${embedUrl}?autoplay=0`}
+                frameborder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowfullscreen
+                title={study.videoTitle ?? study.title}></iframe>
+            </div>
+          ) : study.heroImage ? (
+            <img src={urlFor(study.heroImage).width(1400).height(788).fit('crop').url()} alt={study.title}>
+          ) : null}
+        </div>
+      </div>
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+    </section>
+
+    <section class="case-story">
+      <div class="case-story__grid">
+        <aside class="case-details">
+          {study.client && (
+            <div class="case-details__item" data-sanity={csAttr('client')}>
+              <span>Client</span>
+              <strong>{study.client}</strong>
+            </div>
+          )}
+          {industryLabel && (
+            <div class="case-details__item" data-sanity={videoAttr('categories')}>
+              <span>Industry</span>
+              <strong>{industryLabel}</strong>
+            </div>
+          )}
+        </aside>
+        <div class="case-story__content">
+          <p class="case-eyebrow">The Short Version</p>
+          <div class="rich-text-lg w-richtext" data-sanity={csAttr('body')}>
+            {study.body
+              ? <PortableText value={study.body} components={components} />
+              : <p>Case study coming soon.</p>}
+          </div>
+        </div>
+      </div>
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+    </section>
+
+    {study.gallery?.length ? (
+      <section class="case-gallery" data-sanity={csAttr('gallery')}>
+        <div class="case-gallery__head">
+          <p class="case-eyebrow">Gallery</p>
+          <h2>Behind the scenes and visual development</h2>
+        </div>
+        <div class="case-gallery__grid">
+          {study.gallery.map((image: any, index: number) => (
+            <figure class={`case-gallery__item case-gallery__item--${index % 5}`} data-sanity={csAttr(`gallery[_key=="${image._key}"]`)}>
+              <button
+                type="button"
+                class="case-gallery__button"
+                data-gallery-open
+                data-gallery-src={urlFor(image).width(1800).url()}
+                data-gallery-alt={image.alt ?? ''}
+                data-gallery-caption={image.caption ?? ''}
+                aria-label={`Open ${image.alt ?? 'gallery image'}`}
+              >
+                <img
+                  src={urlFor(image).width(760).height(560).fit('crop').url()}
+                  alt={image.alt ?? ''}
+                  loading="lazy"
+                >
+              </button>
+              {image.caption && <figcaption>{image.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+        <dialog class="case-gallery-modal" data-gallery-modal>
+          <button type="button" class="case-gallery-modal__close" data-gallery-close aria-label="Close gallery image"></button>
+          <img data-gallery-modal-image src="" alt="">
+          <p data-gallery-modal-caption></p>
+        </dialog>
+        <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
+      </section>
+    ) : null}
+
+    {!study.gallery?.length && (
+      <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
+    )}
+  </main>
+</Layout>
+
+<style>
+  .case-hero__inner,
+  .case-story__grid,
+  .case-gallery__head,
+  .case-gallery__grid {
+    width: 100%;
+    max-width: var(--_primitives---container--container-main);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .case-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .case-hero h1 {
+    max-width: 16ch;
+    margin-top: 20px;
+    font-size: clamp(2.75rem, 5.2vw, 4.125rem);
+    line-height: 110%;
+  }
+
+  .case-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .case-back::before {
+    content: "";
+    width: 0.8em;
+    height: 0.8em;
+    border-left: 0.16em solid currentColor;
+    border-bottom: 0.16em solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  .case-eyebrow {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .case-hero__media {
+    position: relative;
+    width: 100%;
+    margin-top: clamp(0.75rem, 2vw, 1.5rem);
+  }
+
+  .case-video,
+  .case-hero__media > img {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border: 2px solid currentColor;
+    border-radius: 8px;
+    background: #252525;
+    box-shadow: 0 0.65rem 0 #252525;
+  }
+
+  .case-video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .case-video iframe {
+    width: 100%;
+    height: 100%;
+  }
+
+  .case-hero__media > img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .case-story__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .case-details {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .case-details__item {
+    min-width: 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--_brand---colors--accent);
+    color: #252525;
+  }
+
+  .case-details__item span,
+  .case-details__item strong {
+    display: block;
+  }
+
+  .case-details__item span {
+    margin-bottom: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .case-details__item strong {
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+
+  .case-details__item p {
+    margin: 0;
+    line-height: 1.35;
+  }
+
+  .case-story__content .rich-text-lg {
+    margin-top: 1rem;
+  }
+
+  .case-story h2,
+  .case-gallery h2 {
+    margin-top: 0;
+    text-decoration: none;
+  }
+
+  .case-story :global(h2),
+  .case-gallery :global(h2) {
+    text-decoration: none;
+  }
+
+  .case-gallery {
+    overflow: hidden;
+  }
+
+  .case-gallery__head {
+    padding-top: var(--_spacing---spacing--sp-md);
+    margin-bottom: clamp(1.5rem, 4vw, 3rem);
+    border-top: 2px dashed var(--_brand---colors--grey-300);
+  }
+
+  .case-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(0.9rem, 2vw, 1.35rem);
+  }
+
+  .case-gallery__item {
+    margin: 0;
+  }
+
+  .case-gallery__button {
+    display: block;
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 2px solid currentColor;
+    border-radius: 8px;
+    color: inherit;
+    background: transparent;
+    cursor: zoom-in;
+  }
+
+  .case-gallery__button img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 0;
+    border-radius: 0;
+    transform: scale(1);
+    transform-origin: center;
+    transition: transform .32s cubic-bezier(.22, 1, .36, 1);
+    will-change: transform;
+  }
+
+  .case-gallery__button:hover img {
+    transform: scale(1.06);
+  }
+
+  .case-gallery__item:nth-child(3n + 2) .case-gallery__button img {
+    aspect-ratio: 1 / 1;
+  }
+
+  .case-gallery__item:nth-child(3n) .case-gallery__button img {
+    aspect-ratio: 3 / 4;
+  }
+
+  .case-gallery__item figcaption {
+    margin-top: 0.55rem;
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+
+  .case-gallery-modal {
+    width: min(92vw, 72rem);
+    max-width: none;
+    max-height: 90vh;
+    padding: 0;
+    border: 2px solid currentColor;
+    border-radius: 8px;
+    background: #fff;
+    color: #252525;
+  }
+
+  .case-gallery-modal::backdrop {
+    background: rgba(37, 37, 37, 0.78);
+  }
+
+  .case-gallery-modal img {
+    display: block;
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    background: #252525;
+  }
+
+  .case-gallery-modal p {
+    display: none;
+    margin: 0;
+    padding: 0.85rem 1rem 1rem;
+    line-height: 1.35;
+  }
+
+  .case-gallery-modal p:not(:empty) {
+    display: block;
+  }
+
+  .case-gallery-modal__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background: var(--_brand---colors--accent);
+    cursor: pointer;
+  }
+
+  .case-gallery-modal__close::before,
+  .case-gallery-modal__close::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 2px;
+    background: currentColor;
+  }
+
+  .case-gallery-modal__close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  .case-gallery-modal__close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+
+  @media screen and (max-width: 991px) {
+    .case-story__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .case-gallery__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .case-gallery__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .case-gallery__button img,
+    .case-gallery__item:nth-child(3n + 2) .case-gallery__button img,
+    .case-gallery__item:nth-child(3n) .case-gallery__button img {
+      aspect-ratio: 4 / 3;
+    }
+  }
+</style>
+
+<script>
+  const galleryModal = document.querySelector('[data-gallery-modal]');
+  const galleryImage = document.querySelector('[data-gallery-modal-image]');
+  const galleryCaption = document.querySelector('[data-gallery-modal-caption]');
+  const galleryClose = document.querySelector('[data-gallery-close]');
+
+  if (galleryModal instanceof HTMLDialogElement && galleryImage instanceof HTMLImageElement && galleryCaption) {
+    document.querySelectorAll('[data-gallery-open]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        if (!(trigger instanceof HTMLElement)) return;
+
+        galleryImage.src = trigger.dataset.gallerySrc ?? '';
+        galleryImage.alt = trigger.dataset.galleryAlt ?? '';
+        galleryCaption.textContent = trigger.dataset.galleryCaption ?? '';
+        galleryModal.showModal();
+      });
+    });
+
+    galleryClose?.addEventListener('click', () => galleryModal.close());
+
+    galleryModal.addEventListener('click', (event) => {
+      if (event.target === galleryModal) galleryModal.close();
+    });
+  }
+</script>

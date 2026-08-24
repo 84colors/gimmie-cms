@@ -1,0 +1,38 @@
+---
+import { sanityClient } from 'sanity:client';
+import { defineQuery } from 'groq';
+import { urlFor } from '../../utils/image';
+import { createDataAttribute } from '@sanity/visual-editing';
+import Layout from '../../layouts/Layout.astro';
+
+const CASE_STUDIES_QUERY = defineQuery(`
+  *[_type == "caseStudy"] | order(_createdAt desc) {
+    _id, title, slug, client, heroImage,
+    "videoTitle": video->title
+  }
+`);
+const studies = await sanityClient.fetch(CASE_STUDIES_QUERY);
+---
+
+<Layout title="Case Studies | Explainer Video Production Ireland">
+  <main>
+    <section class="s_thumbs">
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+      <h1 style="margin-bottom:1em">Case Studies</h1>
+      <div class="thumbs-grid">
+        {studies.map((study: any) => (
+          <a href={`/case-studies/${study.slug.current}`} class="thumb-wrap w-inline-block">
+            <div class="thumb-img-wrap" data-sanity={createDataAttribute({ id: study._id, type: 'caseStudy', path: 'heroImage' }).toString()}>
+              {study.heroImage
+                ? <img loading="lazy" src={urlFor(study.heroImage).width(800).height(450).url()} alt={study.title} class="thumb-img">
+                : <div class="thumb-img" style="background:#eee;aspect-ratio:16/9"></div>
+              }
+            </div>
+            <div class="thumb-text">{study.title}</div>
+          </a>
+        ))}
+      </div>
+      <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
+    </section>
+  </main>
+</Layout>
