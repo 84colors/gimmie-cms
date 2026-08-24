@@ -834,6 +834,37 @@ strong {
   transform: scale(1.06);
 }
 
+.thumb-case-study-cta {
+  z-index: 1;
+  color: var(--_brand---colors--black);
+  background-color: var(--_brand---colors--accent);
+  border-radius: var(--_brand---radius--medium);
+  padding: .65rem .85rem;
+  font-size: .9rem;
+  font-weight: 600;
+  line-height: 1;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  opacity: 0;
+  transform: translateY(.4rem);
+  transition: opacity .22s ease, transform .22s cubic-bezier(.22, 1, .36, 1);
+  pointer-events: none;
+}
+
+.thumb-wrap.is-case-study:hover .thumb-case-study-cta,
+.thumb-wrap.is-case-study:focus-visible .thumb-case-study-cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (hover: none) {
+  .thumb-case-study-cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .heading-3 {
   color: var(--_color-tokens---header-primary);
   font-size: var(--_typography---h3);

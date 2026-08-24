@@ -211,7 +211,7 @@ const hpAttr = (path: string) =>
                     'data-modal-target': 'vimeo',
                     href: '#',
                   })}
-              class="thumb-wrap w-inline-block"
+              class={`thumb-wrap w-inline-block${video.caseStudySlug ? ' is-case-study' : ''}`}
               data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'vimeoUrl' }).toString()}
             >
               <div class="thumb-img-wrap" data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'thumbnail' }).toString()}>
@@ -219,6 +219,7 @@ const hpAttr = (path: string) =>
                   ? <img loading="lazy" src={urlFor(video.thumbnail).width(800).height(450).url()} alt={video.title} class="thumb-img">
                   : <div class="thumb-img" style="background:#eee;aspect-ratio:16/9"></div>
                 }
+                {video.caseStudySlug && <span class="thumb-case-study-cta">View case study</span>}
               </div>
               <div class="thumb-text" data-sanity={createDataAttribute({ id: video._id, type: 'video', path: 'title' }).toString()}>{video.title}</div>
             </a>
