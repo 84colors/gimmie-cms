@@ -1,0 +1,42 @@
+---
+interface Props {
+  id?: string;
+}
+
+const { id = 'contact' } = Astro.props;
+---
+
+<div class="w-form" data-contact-form>
+  <form id={`${id}-form`} name={`${id}-form`} action="/api/contact" method="post" class="form-wrap">
+    <div class="form-row">
+      <label for={`${id}-name`} class="form-label">Name</label>
+      <input class="form-input w-input" maxlength="256" name="name" type="text" id={`${id}-name`} autocomplete="name" required>
+    </div>
+    <div class="form-row">
+      <label for={`${id}-email`} class="form-label">Email address</label>
+      <input class="form-input w-input" maxlength="254" name="email" type="email" id={`${id}-email`} autocomplete="email" required>
+    </div>
+    <div class="form-row">
+      <label for={`${id}-message`} class="form-label">Tell us about your project</label>
+      <textarea required placeholder="What do you need to explain, and who needs to understand it?" maxlength="5000" id={`${id}-message`} name="Message" class="form-input is--textarea w-input"></textarea>
+    </div>
+    <input type="text" name="company" tabindex="-1" autocomplete="off" class="contact-honeypot" aria-hidden="true">
+    <input type="hidden" name="startedAt">
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAADnuaJ0kgj384rLE"></div>
+    <div class="form-btn-wrap"><input type="submit" data-wait="Please wait..." class="btn-primary w-button" value="Send message"></div>
+  </form>
+  <div class="success-message w-form-done" role="status">
+    <div>Thank you. Your message has been sent.</div>
+  </div>
+  <div class="error-message w-form-fail" role="alert">
+    <div>Something went wrong. Please try again or email us directly.</div>
+  </div>
+</div>
+
+<style>
+  .contact-honeypot {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+  }
+</style>

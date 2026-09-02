@@ -2,18 +2,65 @@
 import { sanityClient } from 'sanity:client';
 import { defineQuery } from 'groq';
 import { createDataAttribute } from '@sanity/visual-editing';
+import ContactForm from '../components/ContactForm.astro';
 
 interface Props {
   title: string;
   description?: string;
+  canonicalPath?: string;
+  structuredData?: Record<string, unknown>;
+  showContactModal?: boolean;
 }
 
-const { title, description = 'Dublin-based studio creating award-winning explainer videos for healthcare, fintech, edtech and SaaS. Clear, engaging, and made to convert.' } = Astro.props;
+const {
+  title,
+  description = 'Dublin-based studio creating award-winning explainer videos for healthcare, fintech, edtech and SaaS. Clear, engaging, and made to convert.',
+  canonicalPath = Astro.url.pathname,
+  structuredData,
+  showContactModal = true,
+} = Astro.props;
 
 const HOMEPAGE_QUERY = defineQuery(`*[_type == "homepage" && _id == "homepage"][0]`);
 const hp = await sanityClient.fetch(HOMEPAGE_QUERY);
 const hpAttr = (path: string) =>
   createDataAttribute({ id: 'homepage', type: 'homepage', path }).toString();
+
+const siteUrl = 'https://gimmetheshortversion.com';
+const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
+const organizationId = `${siteUrl}/#organization`;
+const baseStructuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: 'Gimme the Short Version',
+      alternateName: 'GimmeTheShortVersion',
+      url: `${siteUrl}/`,
+      logo: `${siteUrl}/images/webclip.png`,
+      description: 'A visual communication studio that turns complex healthcare, public-sector, technology, finance and education information into clear, engaging stories.',
+      email: hp?.footerEmail ?? 'info@iglooanimations.com',
+      telephone: hp?.footerPhone ?? '+353 86 846 8842',
+      areaServed: { '@type': 'Country', name: 'Ireland' },
+      parentOrganization: { '@type': 'Organization', name: 'Igloo Animations' },
+      sameAs: [
+        'https://www.instagram.com/iglooanimations/',
+        'https://www.youtube.com/gimmetheshortversion',
+        'https://uk.linkedin.com/in/trevorcourtney',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: `${siteUrl}/`,
+      name: 'Gimme the Short Version',
+      publisher: { '@id': organizationId },
+      inLanguage: 'en-IE',
+    },
+  ],
+};
+const jsonLd = JSON.stringify(structuredData ?? baseStructuredData).replace(/</g, '\\u003c');
+
 ---
 
 <!DOCTYPE html>
@@ -27,6 +74,8 @@ const hpAttr = (path: string) =>
   <meta property="og:type" content="website">
   <meta content="summary_large_image" name="twitter:card">
   <meta content="width=device-width, initial-scale=1" name="viewport">
+  <link rel="canonical" href={canonicalUrl}>
+  <script type="application/ld+json" set:html={jsonLd}></script>
   <link href="/css/normalize.css" rel="stylesheet" type="text/css">
   <link href="/css/webflow.css" rel="stylesheet" type="text/css">
   <link href="/css/gimmie-dev.webflow.css" rel="stylesheet" type="text/css">
@@ -36,6 +85,12 @@ const hpAttr = (path: string) =>
   <link href="/images/webclip-180.png" rel="apple-touch-icon" sizes="180x180">
   <link href="/images/webclip-192.png" rel="icon" type="image/png" sizes="192x192">
   <link href="/images/webclip.png" rel="icon" type="image/png" sizes="512x512">
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-S8mMMtUKHdzV4UzOqtNU0.js"></script>
+  <script is:inline>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-7MC4Q6DXNL"></script>
   <script is:inline>
     window.dataLayer = window.dataLayer || [];
@@ -105,7 +160,7 @@ const hpAttr = (path: string) =>
               <li><a href="/#process" class="nav-link">Process</a></li>
             </ul>
             <div class="nav-right">
-              <a data-modal-target="form" href="#" class="btn-primary w-inline-block">
+              <a href="/contact" class="btn-primary w-inline-block">
                 <div class="btn-text">Get a quote</div>
                 <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
               </a>
@@ -130,7 +185,7 @@ const hpAttr = (path: string) =>
               <div class="heading-3" data-sanity={hpAttr('footerTagline')}>
                 {hp?.footerTagline ?? 'Stop explaining. Start showing. Sit back, relax… Get the short version.'}
               </div>
-              <a data-modal-target="form" href="#" class="btn-primary w-inline-block">
+              <a href="/contact" class="btn-primary w-inline-block">
                 <div class="btn-text">Get a quote</div>
                 <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
               </a>
@@ -182,7 +237,7 @@ const hpAttr = (path: string) =>
     </footer>
 
     <!-- ── Modals ───────────────────────────────────────────────────── -->
-    <div data-modal-group-status="not-active" class="modal">
+    {showContactModal && <div data-modal-group-status="not-active" class="modal">
       <div data-hover="" data-modal-close="" class="modal__dark"></div>
 
       <!-- Contact form modal -->
@@ -190,23 +245,7 @@ const hpAttr = (path: string) =>
         <div class="modal__scroll">
           <div class="modal__content">
             <h2 class="modal__h2">Request a quote</h2>
-            <div class="w-form">
-              <form id="email-form" name="email-form" data-name="Email Form" action="/api/contact" method="post" class="form-wrap">
-                <div class="form-row"><label for="name" class="form-label">Name</label><input class="form-input w-input" maxlength="256" name="name" placeholder="" type="text" id="name" required></div>
-                <div class="form-row"><label for="email" class="form-label">Email Address</label><input class="form-input w-input" maxlength="256" name="email" placeholder="" type="email" id="email" required></div>
-                <div class="form-row"><label for="Message" class="form-label">Message</label><textarea required placeholder="Your message" maxlength="5000" id="Message" name="Message" class="form-input is--textarea w-input"></textarea></div>
-                <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;" aria-hidden="true">
-                <input type="hidden" name="startedAt" id="startedAt">
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAADnuaJ0kgj384rLE"></div>
-                <div class="form-btn-wrap"><input type="submit" data-wait="Please wait..." class="btn-primary w-button" value="Send message"></div>
-              </form>
-              <div class="success-message w-form-done">
-                <div>Thank you! Your submission has been received!</div>
-              </div>
-              <div class="error-message w-form-fail">
-                <div>Oops! Something went wrong while submitting the form.</div>
-              </div>
-            </div>
+            <ContactForm id="modal-contact" />
           </div>
         </div>
         <div data-hover="" data-modal-close="" class="modal__btn-close">
@@ -214,7 +253,7 @@ const hpAttr = (path: string) =>
           <div class="modal__btn-close-bar is--second"></div>
         </div>
       </div>
-    </div>
+    </div>}
 
   </div><!-- /.page-wrap -->
 
@@ -231,12 +270,13 @@ const hpAttr = (path: string) =>
   <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <script is:inline>
     (function () {
-      var form = document.getElementById("email-form");
+      document.querySelectorAll("[data-contact-form]").forEach(function (container) {
+      var form = container.querySelector("form");
       if (!form) return;
-      var startedAt = document.getElementById("startedAt");
+      var startedAt = form.querySelector('[name="startedAt"]');
       var submitButton = form.querySelector('[type="submit"]');
-      var successMessage = document.querySelector(".success-message");
-      var errorMessage = document.querySelector(".error-message");
+      var successMessage = container.querySelector(".success-message");
+      var errorMessage = container.querySelector(".error-message");
       if (startedAt) startedAt.value = String(Date.now());
       function showMessage(element, isVisible) {
         if (!element) return;
@@ -281,6 +321,7 @@ const hpAttr = (path: string) =>
               submitButton.disabled = false;
             }
           });
+      });
       });
     })();
   </script>

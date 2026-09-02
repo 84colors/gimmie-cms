@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ContactForm from '../components/ContactForm.astro';
+
+const siteUrl = 'https://gimmetheshortversion.com';
+const pageUrl = `${siteUrl}/contact`;
+const organizationId = `${siteUrl}/#organization`;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ContactPage',
+      '@id': `${pageUrl}#webpage`,
+      url: pageUrl,
+      name: 'Request a quote | Gimme the Short Version',
+      description: 'Discuss an animation, explainer video, brochure or visual communication project with our Dublin and Wicklow studio.',
+      isPartOf: { '@id': `${siteUrl}/#website` },
+      about: { '@id': organizationId },
+      inLanguage: 'en-IE',
+    },
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: 'Gimme the Short Version',
+      alternateName: 'GimmeTheShortVersion',
+      url: `${siteUrl}/`,
+      logo: `${siteUrl}/images/webclip.png`,
+      email: 'info@iglooanimations.com',
+      telephone: '+353 86 846 8842',
+      areaServed: { '@type': 'Country', name: 'Ireland' },
+      parentOrganization: { '@type': 'Organization', name: 'Igloo Animations' },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'sales',
+        email: 'info@iglooanimations.com',
+        telephone: '+353 86 846 8842',
+        areaServed: 'IE',
+        availableLanguage: 'English',
+      },
+    },
+  ],
+};
+---
+
+<Layout
+  title="Request a quote | Gimme the Short Version"
+  description="Discuss an animation, explainer video, brochure or visual communication project with our Dublin and Wicklow studio."
+  canonicalPath="/contact"
+  structuredData={structuredData}
+  showContactModal={false}
+>
+  <main>
+    <section class="contact-page">
+      <div class="contact-page__grid">
+        <div class="contact-page__intro">
+          <p class="contact-page__eyebrow">Let’s make it clear</p>
+          <h1>Tell us what you need to explain</h1>
+          <p>Share the subject, audience and format you have in mind. We create animations, explainer videos, brochures and other visual communications for complex topics.</p>
+          <div class="contact-page__details">
+            <a href="mailto:info@iglooanimations.com">info@iglooanimations.com</a>
+            <a href="tel:+353868468842">+353 (0)86 8468842</a>
+            <span>Dublin &amp; Wicklow, Ireland</span>
+          </div>
+        </div>
+        <div class="contact-page__form">
+          <h2>Request a quote</h2>
+          <ContactForm id="contact-page" />
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .contact-page { padding-top: clamp(8rem, 14vw, 12rem); padding-bottom: clamp(5rem, 10vw, 9rem); }
+  .contact-page__grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(3rem, 8vw, 8rem); align-items: start; }
+  .contact-page__intro { display: grid; gap: 1.5rem; }
+  .contact-page__intro h1 { max-width: 12ch; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 1.05; }
+  .contact-page__intro > p:not(.contact-page__eyebrow) { max-width: 42rem; font-size: 1.25rem; line-height: 1.5; }
+  .contact-page__eyebrow { font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .contact-page__details { display: flex; flex-direction: column; align-items: flex-start; gap: .55rem; margin-top: 1rem; }
+  .contact-page__details a { text-decoration: underline; text-underline-offset: .2em; }
+  .contact-page__form { padding: clamp(1.5rem, 4vw, 3.5rem); background: var(--_brand---colors--accent); border-radius: 1rem; }
+  .contact-page__form h2 { margin-bottom: 2rem; }
+  @media (max-width: 767px) { .contact-page__grid { grid-template-columns: 1fr; } }
+</style>
