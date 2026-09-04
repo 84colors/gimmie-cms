@@ -48,6 +48,17 @@ const videoAttr = (path: string) =>
 const vimeoId = study.videoUrl?.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
 const embedUrl = vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : null;
 const industryLabel = study.industries?.filter(Boolean).join(', ');
+const galleryImages = [
+  ...(study.heroImage
+    ? [{
+        ...study.heroImage,
+        _key: 'hero-image',
+        alt: study.heroImage.alt ?? study.title,
+        isHero: true,
+      }]
+    : []),
+  ...(study.gallery ?? []),
+];
 
 const components = {
   types: { image: PortableImage },
@@ -107,26 +118,29 @@ const components = {
       <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
     </section>
 
-    {study.gallery?.length ? (
-      <section class="case-gallery" data-sanity={csAttr('gallery')}>
+    {galleryImages.length ? (
+      <section class="case-gallery">
         <div class="case-gallery__head">
           <p class="case-eyebrow">Gallery</p>
           <h2>Behind the scenes and visual development</h2>
         </div>
         <div class="case-gallery__grid">
-          {study.gallery.map((image: any, index: number) => (
-            <figure class={`case-gallery__item case-gallery__item--${index % 5}`} data-sanity={csAttr(`gallery[_key=="${image._key}"]`)}>
+          {galleryImages.map((image: any, index: number) => (
+            <figure
+              class={`case-gallery__item case-gallery__item--${index % 5}`}
+              data-sanity={image.isHero ? csAttr('heroImage') : csAttr(`gallery[_key=="${image._key}"]`)}
+            >
               <button
                 type="button"
                 class="case-gallery__button"
                 data-gallery-open
-                data-gallery-src={urlFor(image).width(1800).url()}
+                data-gallery-src={urlFor(image.asset ?? image).width(1800).url()}
                 data-gallery-alt={image.alt ?? ''}
                 data-gallery-caption={image.caption ?? ''}
                 aria-label={`Open ${image.alt ?? 'gallery image'}`}
               >
                 <img
-                  src={urlFor(image).width(760).height(560).fit('crop').url()}
+                  src={urlFor(image.asset ?? image).width(760).url()}
                   alt={image.alt ?? ''}
                   loading="lazy"
                 >
@@ -144,7 +158,7 @@ const components = {
       </section>
     ) : null}
 
-    {!study.gallery?.length && (
+    {!galleryImages.length && (
       <div data-wf--spacer--variant="lg" class="spacer w-variant-689ef952-6417-4ccf-ccda-e3a471615a1d"></div>
     )}
   </main>
@@ -300,13 +314,15 @@ const components = {
   }
 
   .case-gallery__grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(0.9rem, 2vw, 1.35rem);
+    column-count: 3;
+    column-gap: clamp(0.9rem, 2vw, 1.35rem);
   }
 
   .case-gallery__item {
-    margin: 0;
+    width: 100%;
+    margin: 0 0 clamp(0.9rem, 2vw, 1.35rem);
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   .case-gallery__button {
@@ -324,8 +340,7 @@ const components = {
   .case-gallery__button img {
     display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
+    height: auto;
     border: 0;
     border-radius: 0;
     transform: scale(1);
@@ -336,14 +351,6 @@ const components = {
 
   .case-gallery__button:hover img {
     transform: scale(1.06);
-  }
-
-  .case-gallery__item:nth-child(3n + 2) .case-gallery__button img {
-    aspect-ratio: 1 / 1;
-  }
-
-  .case-gallery__item:nth-child(3n) .case-gallery__button img {
-    aspect-ratio: 3 / 4;
   }
 
   .case-gallery__item figcaption {
@@ -420,25 +427,28 @@ const components = {
   }
 
   @media screen and (max-width: 991px) {
+    .case-hero {
+      padding-top: 32px;
+    }
+
     .case-story__grid {
       grid-template-columns: 1fr;
     }
 
     .case-gallery__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-count: 2;
     }
   }
 
   @media screen and (max-width: 767px) {
-    .case-gallery__grid {
-      grid-template-columns: 1fr;
+    .case-hero {
+      padding-top: 56px;
     }
 
-    .case-gallery__button img,
-    .case-gallery__item:nth-child(3n + 2) .case-gallery__button img,
-    .case-gallery__item:nth-child(3n) .case-gallery__button img {
-      aspect-ratio: 4 / 3;
+    .case-gallery__grid {
+      column-count: 1;
     }
+
   }
 </style>
 

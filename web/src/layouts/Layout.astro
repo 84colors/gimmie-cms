@@ -140,6 +140,42 @@ const jsonLd = JSON.stringify(structuredData ?? baseStructuredData).replace(/</g
       :root { --font-from: 12; --font-to: 16; --vw-from: calc(1 / 100); --vw-to: calc(479 / 100); }
     }
     .gsap_split_word-mask { padding-bottom: 0.14em; }
+    .menu-button { display: none; }
+    @media screen and (max-width: 991px) {
+      .navbar { z-index: 1000; }
+      .navbar-wrap { position: relative; transform: none !important; }
+      .menu-button {
+        appearance: none;
+        color: var(--_brand---colors--grey-dark);
+        background: transparent;
+        border: 0;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        display: flex;
+      }
+      .menu-button .icon { display: block; }
+      .nav-menu.is-open {
+        width: 100vw;
+        padding: 24px var(--_spacing---p-global) 30px;
+        border-bottom: 1px solid var(--_brand---colors--grey-light);
+        background: #fff;
+        color: #252525;
+        flex-direction: column;
+        display: flex;
+        position: fixed;
+        top: 68px;
+        left: calc((100% - 100vw) / 2);
+        z-index: 1001;
+        visibility: visible;
+        opacity: 1;
+      }
+      .nav-menu.is-open .nav-link {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        display: inline-block;
+      }
+    }
   </style>
   <script is:inline>!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script>
 </head>
@@ -154,7 +190,7 @@ const jsonLd = JSON.stringify(structuredData ?? baseStructuredData).replace(/</g
             <a href="/" class="nav-logo w-nav-brand">
               <img src="/images/logo.svg" loading="eager" alt="Gimme the Short Version" class="image">
             </a>
-            <ul role="list" class="nav-menu w-list-unstyled">
+            <ul id="primary-navigation" role="list" class="nav-menu w-list-unstyled">
               <li><a href="/#about" class="nav-link">About</a></li>
               <li><a href="/#work" class="nav-link">Work</a></li>
               <li><a href="/#process" class="nav-link">Process</a></li>
@@ -164,9 +200,9 @@ const jsonLd = JSON.stringify(structuredData ?? baseStructuredData).replace(/</g
                 <div class="btn-text">Get a quote</div>
                 <div class="btn-icon w-embed"><svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.8047 5.4801C14.0651 5.21494 14.0651 4.78503 13.8047 4.51988L9.56209 0.198865C9.30173 -0.0662883 8.87962 -0.0662883 8.61927 0.198865C8.35892 0.464018 8.35892 0.893926 8.61927 1.15909L12.3905 4.99998L8.61927 8.84087C8.35892 9.10601 8.35892 9.53592 8.61927 9.80106C8.87962 10.0663 9.30173 10.0663 9.56209 9.80106L13.8047 5.4801ZM0 5.67897H13.3333V4.321H0V5.67897Z" fill="#252525"/></svg></div>
               </a>
-              <div class="menu-button w-nav-button">
+              <button type="button" class="menu-button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-navigation" onclick="var m=document.getElementById('mobile-navigation'),o=this.getAttribute('aria-expanded')!=='true';m.classList.toggle('is-open',o);m.style.display=o?'flex':'none';this.setAttribute('aria-expanded',String(o));this.setAttribute('aria-label',o?'Close navigation menu':'Open navigation menu')">
                 <div class="icon w-icon-nav-menu"></div>
-              </div>
+              </button>
             </div>
           </div>
         </div>

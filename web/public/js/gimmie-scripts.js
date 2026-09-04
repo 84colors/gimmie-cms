@@ -4,6 +4,46 @@ console.log("hey there");
     "use strict";
 
     // ============================================================
+    // Responsive navigation
+    // ============================================================
+    function initResponsiveNavigation() {
+        const button = document.querySelector(".menu-button");
+        const desktopMenu = document.querySelector("#primary-navigation");
+        if (!button || !desktopMenu) return;
+        const menu = desktopMenu.cloneNode(true);
+        menu.id = "mobile-navigation";
+        menu.classList.add("mobile-nav-menu");
+        Object.assign(menu.style, {
+            display: "none", position: "fixed", top: "68px", left: "0", width: "100%",
+            margin: "0", padding: "24px 32px 30px", background: "#fff", color: "#252525",
+            flexDirection: "column", alignItems: "center", zIndex: "99999",
+            borderBottom: "1px solid #f5f5f5",
+        });
+        document.body.appendChild(menu);
+
+        const closeMenu = () => {
+            menu.classList.remove("is-open");
+            menu.style.display = "none";
+            button.setAttribute("aria-expanded", "false");
+            button.setAttribute("aria-label", "Open navigation menu");
+        };
+
+        menu.querySelectorAll("a").forEach((link) => {
+            link.addEventListener("click", closeMenu);
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") closeMenu();
+        });
+
+        window.matchMedia("(min-width: 992px)").addEventListener("change", (event) => {
+            if (event.matches) closeMenu();
+        });
+    }
+
+    initResponsiveNavigation();
+
+    // ============================================================
     // Modal
     // ============================================================
     function initModalBasic() {
