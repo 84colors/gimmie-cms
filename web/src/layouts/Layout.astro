@@ -8,6 +8,7 @@ interface Props {
   title: string;
   description?: string;
   canonicalPath?: string;
+  socialImage?: string;
   structuredData?: Record<string, unknown>;
   showContactModal?: boolean;
 }
@@ -16,6 +17,7 @@ const {
   title,
   description = 'Dublin-based studio creating award-winning explainer videos for healthcare, fintech, edtech and SaaS. Clear, engaging, and made to convert.',
   canonicalPath = Astro.url.pathname,
+  socialImage,
   structuredData,
   showContactModal = true,
 } = Astro.props;
@@ -72,7 +74,12 @@ const jsonLd = JSON.stringify(structuredData ?? baseStructuredData).replace(/</g
   <meta content={title} property="og:title">
   <meta content={description} property="og:description">
   <meta property="og:type" content="website">
+  <meta content={canonicalUrl} property="og:url">
+  {socialImage && <meta content={socialImage} property="og:image">}
   <meta content="summary_large_image" name="twitter:card">
+  <meta content={title} name="twitter:title">
+  <meta content={description} name="twitter:description">
+  {socialImage && <meta content={socialImage} name="twitter:image">}
   <meta content="width=device-width, initial-scale=1" name="viewport">
   <link rel="canonical" href={canonicalUrl}>
   <script type="application/ld+json" set:html={jsonLd}></script>

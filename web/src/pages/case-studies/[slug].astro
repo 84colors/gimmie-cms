@@ -48,6 +48,9 @@ const videoAttr = (path: string) =>
 const vimeoId = study.videoUrl?.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
 const embedUrl = vimeoId ? `https://player.vimeo.com/video/${vimeoId}` : null;
 const industryLabel = study.industries?.filter(Boolean).join(', ');
+const socialImage = study.heroImage
+  ? urlFor(study.heroImage).width(1200).height(630).fit('crop').url()
+  : undefined;
 const galleryImages = [
   ...(study.heroImage
     ? [{
@@ -65,7 +68,7 @@ const components = {
 };
 ---
 
-<Layout title={`${study.title} | Case Study`}>
+<Layout title={`${study.title} | Case Study`} socialImage={socialImage}>
   <main>
     <section class="case-hero">
       <div data-wf--spacer--variant="md" class="spacer w-variant-f538d834-7ecf-8af2-40c0-1520852962f4"></div>
